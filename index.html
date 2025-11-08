@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Romantic Slideshow</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            color: #fff;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            padding: 20px;
+        }
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .headline {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .lines {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+        }
+        .arrow {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .arrow:hover {
+            background: rgba(255,255,255,0.4);
+        }
+        .dots {
+            display: flex;
+            gap: 5px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .dot.active {
+            background: #fff;
+        }
+        .play-pause {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .play-pause:hover {
+            background: rgba(255,255,255,0.4);
+        }
+        .settings {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .settings:hover {
+            background: rgba(255,255,255,0.4);
+        }
+        .settings-panel {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            z-index: 20;
+            max-width: 300px;
+        }
+        .settings-panel.show {
+            display: block;
+        }
+        .settings-panel label {
+            display: block;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .settings-panel input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        .hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .heart {
+            position: absolute;
+            font-size: 2rem;
+            animation: float 10s linear infinite;
+            opacity: 0.7;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+        .confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+        }
+        .confetti.show {
+            display: block;
+        }
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .download {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .download:hover {
+            background: rgba(255,255,255,0.4);
+        }
+        .copy {
+            position: absolute;
+            bottom: 70px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: none;
+        }
+        .copy:hover {
+            background: rgba(255,255,255,0.4);
+        }
+        .copy.show {
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .headline {
+                font-size: 2rem;
+            }
+            .lines {
+                font-size: 1.2rem;
+            }
+            .controls {
+                bottom: 10px;
+            }
+            .settings-panel {
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hearts" id="hearts"></div>
+        <div class="confetti" id="confetti"></div>
+        <div id="slides"></div>
+        <div class="controls">
+            <button class="arrow" id="prev" aria-label="Previous slide">&larr;</button>
+            <div class="dots" id="dots"></div>
+            <button class="arrow" id="next" aria-label="Next slide">&rarr;</button>
+            <button class="play-pause" id="play-pause" aria-label="Play/Pause slideshow">&#9654;</button>
+        </div>
+        <button class="settings" id="settings" aria-label="Settings">&#9881;</button>
+        <div class="settings-panel" id="settings-panel">
+            <label>Slide Duration (ms): <input type="number" id="slide-duration" value="5000"></label>
+            <label>Primary Color: <input type="color" id="primary-color" value="#ff9a9e"></label>
+            <label>Accent Color: <input type="color" id="accent-color" value="#fecfef"></label>
+            <label>Gradient Start: <input type="color" id="gradient-start" value="#ff9a9e"></label>
+            <label>Gradient End: <input type="color" id="gradient-end" value="#fecfef"></label>
+            <button id="apply-settings">Apply</button>
+        </div>
+        <button class="download" id="download" aria-label="Download HTML">Download</button>
+        <button class="copy" id="copy" aria-label="Copy message">Copy Message</button>
+    </div>
+    <script>
+        // Personalization variables
+        const herName = "My Love";
+        const myName = "Trust";
+        const dateOrOccasion = ""; // Optional
+        const primaryColor = "#ff9a9e";
+        const accentColor = "#fecfef";
+        const gradientStart = "#ff9a9e";
+        const gradientEnd = "#fecfef";
+        let autoPlay = true;
+        let slideDurationMs = 5000;
+        const backgroundAudio = ""; // Optional, omitted
+
+        // Slides data
+        const slidesData = [
+            { headline: `Hi, ${herName} 💖`, lines: "This page is just for you." },
+            { headline: "I appreciate you", lines: "Thank you for your love, patience, and everything you do. ✨" },
+            { headline: "I love you more than anything", lines: "You are my best friend, my peace, my forever. 🥰" },
+            { headline: "You’re the best thing that ever happened to me", lines: "From the day I met you, my life changed. 🌹" },
+            { headline: "I miss you", lines: "Even when I’m busy, my heart stays with you. 💭❤️" },
+            { headline: "We’ve been through a lot", lines: "Sometimes we argue or fall back—but we always find our way. 🤝" },
+            { headline: "You are my priority", lines: "Work can catch me up, but you are always first in my heart. 🔐" },
+            { headline: "I’m proud of us", lines: "In everything I’ll do and achieve, I carry you with me. 🌟" },
+            { headline: "Forever us", lines: "I choose you, again and again. 💍" },
+            { headline: "A Prayer for Us", lines: "I pray that we never lose each other, just so we can learn how much we mean to each other and see how important we are to one another. 💕" },
+            { headline: "Healing and Growth", lines: "I pray that God heals the scars I caused you and your insecurities. May I learn how to love you fully, and may I learn how to receive your love. 🙏❤️" },
+            { headline: `I love you, ${herName} — always. — ${myName}`, lines: dateOrOccasion ? `On ${dateOrOccasion}` : "" }
+        ];
+
+        // DOM elements
+        const slidesContainer = document.getElementById('slides');
+        const dotsContainer = document.getElementById('dots');
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+        const playPauseBtn = document.getElementById('play-pause');
+        const settingsBtn = document.getElementById('settings');
+        const settingsPanel = document.getElementById('settings-panel');
+        const applySettingsBtn = document.getElementById('apply-settings');
+        const downloadBtn = document.getElementById('download');
+        const copyBtn = document.getElementById('copy');
+        const heartsContainer = document.getElementById('hearts');
+        const confettiContainer = document.getElementById('confetti');
+
+        let currentSlide = 0;
+        let isPlaying = autoPlay;
+        let intervalId;
+
+        // Create slides
+        slidesData.forEach((slide, index) => {
+            const slideEl = document.createElement('div');
+            slideEl.className = 'slide';
+            slideEl.innerHTML = `<div class="headline">${slide.headline}</div><div class="lines">${slide.lines}</div>`;
+            slidesContainer.appendChild(slideEl);
+
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.addEventListener('click', () => goToSlide(index));
+            dotsContainer.appendChild(dot);
+        });
+
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+
+        // Floating hearts
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '💖';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.animationDelay = Math.random() * 10 + 's';
+            heartsContainer.appendChild(heart);
+            setTimeout(() => heart.remove(), 10000);
+        }
+        setInterval(createHeart, 2000);
+
+        // Show slide
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            if (index === slidesData.length - 1) {
+                copyBtn.classList.add('show');
+                triggerConfetti();
+            } else {
+                copyBtn.classList.remove('show');
+            }
+        }
+
+        // Go to slide
+        function goToSlide(index) {
+            currentSlide = index;
+            showSlide(currentSlide);
+        }
+
+        // Next slide
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // Prev slide
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // Auto play
+        function startAutoPlay() {
+            if (isPlaying) {
+                intervalId = setInterval(nextSlide, slideDurationMs);
+            }
+        }
+
+        function stopAutoPlay() {
+            clearInterval(intervalId);
+        }
+
+        // Toggle play/pause
+        playPauseBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            playPauseBtn.innerHTML = isPlaying ? '&#10074;&#10074;' : '&#9654;';
+            if (isPlaying) {
+                startAutoPlay();
+            } else {
+                stopAutoPlay();
+            }
+        });
+
+        // Controls
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === ' ') {
+                e.preventDefault();
+                playPauseBtn.click();
+            }
+            if (e.key === 'Escape') {
+                stopAutoPlay();
+                isPlaying = false;
+                playPauseBtn.innerHTML = '&#9654;';
+            }
+        });
+
+        // Swipe on mobile
+        let startX;
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+        document.addEventListener('touchend', (e) => {
+            if (!startX) return;
+            const endX = e.changedTouches[0].clientX;
+            const diff = startX - endX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) nextSlide();
+                else prevSlide();
+            }
+        });
+
+        // Settings
+        settingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.toggle('show');
+        });
+
+        applySettingsBtn.addEventListener('click', () => {
+            slideDurationMs = parseInt(document.getElementById('slide-duration').value);
+            const newPrimary = document.getElementById('primary-color').value;
+            const newAccent = document.getElementById('accent-color').value;
+            const newGradStart = document.getElementById('gradient-start').value;
+            const newGradEnd = document.getElementById('gradient-end').value;
+            document.body.style.background = `linear-gradient(135deg, ${newGradStart} 0%, ${newGradEnd} 50%, ${newGradEnd} 100%)`;
+            // Note: For simplicity, colors are applied to background; full dynamic styling would require more JS
+            settingsPanel.classList.remove('show');
+            if (isPlaying) {
+                stopAutoPlay();
+                startAutoPlay();
+            }
+        });
+
+        // Download
+        downloadBtn.addEventListener('click', () => {
+            const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'romantic-slideshow.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Copy message
+        copyBtn.addEventListener('click', () => {
+            const message = `${slidesData[slidesData.length - 1].headline} ${slidesData[slidesData.length - 1].lines}`;
+            navigator.clipboard.writeText(message).then(() => alert('Message copied!'));
+        });
+
+        // Confetti
+        function triggerConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                confettiContainer.appendChild(particle);
+                setTimeout(() => particle.remove(), 3000);
+            }
+        }
+
+        // Initialize
+        showSlide(0);
+        if (autoPlay) startAutoPlay();
+    </script>
+</body>
+</html>
